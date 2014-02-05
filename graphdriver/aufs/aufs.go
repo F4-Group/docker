@@ -326,7 +326,7 @@ func (a *Driver) aufsMount(ro []string, rw, target string) (err error) {
 		}
 
 		for _, layer := range ro {
-			branch := fmt.Sprintf("append:%s=ro+wh", layer)
+			branch := fmt.Sprintf("append:%s=ro+wh,dio", layer)
 			if err = mount("none", target, "aufs", MsRemount, branch); err != nil {
 				return
 			}
@@ -342,11 +342,11 @@ func (a *Driver) tryMount(ro []string, rw, target string) (err error) {
 		rwBranch   = fmt.Sprintf("%s=rw", rw)
 		roBranches = fmt.Sprintf("%s=ro+wh:", strings.Join(ro, "=ro+wh:"))
 	)
-	return mount("none", target, "aufs", 0, fmt.Sprintf("br:%v:%v,xino=/dev/shm/aufs.xino", rwBranch, roBranches))
+	return mount("none", target, "aufs", 0, fmt.Sprintf("br:%v:%v,xino=/dev/shm/aufs.xino,dio", rwBranch, roBranches))
 }
 
 func (a *Driver) mountRw(rw, target string) error {
-	return mount("none", target, "aufs", 0, fmt.Sprintf("br:%s,xino=/dev/shm/aufs.xino", rw))
+	return mount("none", target, "aufs", 0, fmt.Sprintf("br:%s,xino=/dev/shm/aufs.xino,dio", rw))
 }
 
 func rollbackMount(target string, err error) {
